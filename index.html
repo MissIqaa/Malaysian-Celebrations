@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎉 Malaysian Celebrations Game 🎉</title>
+    <style>
+        /* --- Styles & Design --- */
+        :root {
+            --raya: #2e7d32;
+            --cny: #d32f2f;
+            --deepavali: #f57c00;
+            --merdeka: #1976d2;
+            --christmas: #c62828;
+            --bg: #fff9c4;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px #fff;
+            margin-bottom: 10px;
+        }
+
+        /* --- Transitions --- */
+        .hidden { display: none !important; }
+
+        /* --- Flashcard Mode --- */
+        #flashcard-section {
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 15px 0 #ddd;
+            text-align: center;
+            border: 8px solid #ffd54f;
+            margin-top: 20px;
+        }
+
+        .card-content h2 { font-size: 3rem; margin: 10px 0; }
+        .card-content h3 { font-size: 1.5rem; color: #555; }
+        .card-content ul { 
+            list-style: none; 
+            padding: 0; 
+            font-size: 1.8rem; 
+            line-height: 2;
+        }
+
+        .nav-btns { margin-top: 30px; display: flex; justify-content: center; gap: 20px; }
+
+        /* --- Game Mode --- */
+        #game-section { width: 100%; max-width: 1200px; }
+
+        .boxes-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .drop-box {
+            min-height: 180px;
+            border: 5px dashed #ccc;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 10px;
+            transition: all 0.3s;
+        }
+
+        .drop-box h2 { font-size: 1.2rem; margin-top: 5px; }
+
+        /* Box Colors */
+        .box-raya { border-color: var(--raya); color: var(--raya); }
+        .box-cny { border-color: var(--cny); color: var(--cny); }
+        .box-deepavali { border-color: var(--deepavali); color: var(--deepavali); }
+        .box-merdeka { border-color: var(--merdeka); color: var(--merdeka); }
+        .box-christmas { border-color: var(--christmas); color: var(--christmas); }
+
+        /* Draggable Cards */
+        #activities-pool {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .activity-card {
+            background: #fff;
+            border: 3px solid #333;
+            padding: 12px 20px;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: grab;
+            box-shadow: 4px 4px 0 #333;
+            transition: transform 0.2s;
+            user-select: none;
+        }
+
+        .activity-card:hover { transform: scale(1.05) rotate(2deg); }
+        .activity-card.correct { background: #c8e6c9 !important; border-color: #2e7d32 !important; color: #1b5e20; }
+        .activity-card.wrong { background: #ffcdd2 !important; border-color: #c62828 !important; color: #b71c1c; }
+
+        /* Buttons */
+        .btn {
+            font-size: 1.2rem;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            background: #4caf50;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px #2e7d32;
+        }
+
+        .btn:active { transform: translateY(4px); box-shadow: 0 1px #2e7d32; }
+        .btn-blue { background: #2196f3; box-shadow: 0 5px #1976d2; }
+        .btn-orange { background: #ff9800; box-shadow: 0 5px #f57c00; }
+
+        #score-display {
+            font-size: 2rem;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎉 Malaysian Celebrations Game 🎉</h1>
+
+    <div id="flashcard-section">
+        <div id="card-container">
+            </div>
+        <div class="nav-btns">
+            <button class="btn btn-blue" onclick="changeCard(-1)">⬅️ Previous</button>
+            <button class="btn btn-blue" onclick="changeCard(1)">Next ➡️</button>
+        </div>
+        <br>
+        <button class="btn btn-orange" style="width: 100%; font-size: 1.8rem;" onclick="startGame()">Start Game 🎮</button>
+    </div>
+
+    <div id="game-section" class="hidden">
+        <div class="boxes-container">
+            <div class="drop-box box-raya" data-target="Hari Raya" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h2>🌙 Hari Raya</h2>
+            </div>
+            <div class="drop-box box-cny" data-target="Chinese New Year" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h2>🧧 CNY</h2>
+            </div>
+            <div class="drop-box box-deepavali" data-target="Deepavali" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h2>🪔 Deepavali</h2>
+            </div>
+            <div class="drop-box box-merdeka" data-target="Hari Merdeka" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h2>🇲🇾 Merdeka</h2>
+            </div>
+            <div class="drop-box box-christmas" data-target="Christmas" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h2>🎄 Christmas</h2>
+            </div>
+        </div>
+
+        <div id="activities-pool">
+            </div>
+
+        <div style="margin-top: 30px; text-align: center;">
+            <button class="btn" onclick="checkAnswers()">Check Answers ✅</button>
+            <button class="btn btn-blue" onclick="location.reload()">Play Again 🔄</button>
+            <div id="score-display"></div>
+        </div>
+    </div>
+
+    <script>
+        const data = [
+            { name: "Hari Raya", who: "Muslims", emoji: "🌙", items: ["Visit family", "Eat ketupat", "Give duit raya"] },
+            { name: "Chinese New Year", who: "Chinese community", emoji: "🧧", items: ["Reunion dinner", "Give ang pow", "Lion dance"] },
+            { name: "Deepavali", who: "Hindus", emoji: "🪔", items: ["Light oil lamps", "Make kolam", "Eat sweets"] },
+            { name: "Hari Merdeka", who: "All Malaysians", emoji: "🇲🇾", items: ["Watch parades", "Wave the flag", "Sing patriotic songs"] },
+            { name: "Christmas", who: "Christians", emoji: "🎄", items: ["Decorate tree", "Give gifts", "Go to church"] }
+        ];
+
+        let currentCard = 0;
+
+        // Flashcard Logic
+        function showCard() {
+            const card = data[currentCard];
+            const container = document.getElementById('card-container');
+            container.innerHTML = `
+                <div class="card-content">
+                    <h3>Who: ${card.who}</h3>
+                    <h2>${card.emoji} ${card.name}</h2>
+                    <ul>
+                        ${card.items.map(i => `<li>✨ ${i}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        function changeCard(step) {
+            currentCard = (currentCard + step + data.length) % data.length;
+            showCard();
+        }
+
+        // Game Initialization
+        function startGame() {
+            document.getElementById('flashcard-section').classList.add('hidden');
+            document.getElementById('game-section').classList.remove('hidden');
+            setupGame();
+        }
+
+        function setupGame() {
+            const pool = document.getElementById('activities-pool');
+            let allActivities = [];
+
+            data.forEach(celebration => {
+                celebration.items.forEach(item => {
+                    allActivities.push({ text: item, category: celebration.name });
+                });
+            });
+
+            // Shuffle
+            allActivities.sort(() => Math.random() - 0.5);
+
+            allActivities.forEach((act, index) => {
+                const div = document.createElement('div');
+                div.className = 'activity-card';
+                div.draggable = true;
+                div.id = 'act-' + index;
+                div.innerText = act.text;
+                div.dataset.category = act.category;
+                div.ondragstart = drag;
+                pool.appendChild(div);
+            });
+        }
+
+        // Drag & Drop Logic
+        function allowDrop(ev) { ev.preventDefault(); }
+        function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const dataId = ev.dataTransfer.getData("text");
+            const draggedEl = document.getElementById(dataId);
+            
+            let target = ev.target;
+            while (target && !target.classList.contains('drop-box')) {
+                target = target.parentElement;
+            }
+
+            if (target) {
+                target.appendChild(draggedEl);
+                draggedEl.style.margin = "5px";
+                draggedEl.style.display = "inline-block";
+            }
+        }
+
+        // Scoring
+        function checkAnswers() {
+            const boxes = document.querySelectorAll('.drop-box');
+            let score = 0;
+            let total = 15;
+
+            boxes.forEach(box => {
+                const targetCategory = box.dataset.target;
+                const children = box.querySelectorAll('.activity-card');
+                
+                children.forEach(card => {
+                    if (card.dataset.category === targetCategory) {
+                        card.classList.add('correct');
+                        card.classList.remove('wrong');
+                        score++;
+                    } else {
+                        card.classList.add('wrong');
+                        card.classList.remove('correct');
+                    }
+                });
+            });
+
+            const scoreDisplay = document.getElementById('score-display');
+            scoreDisplay.innerText = `Score: ${score} / ${total}`;
+            if (score === total) scoreDisplay.innerText += " 🌟 Perfect!";
+        }
+
+        // Init
+        showCard();
+    </script>
+</body>
+</html>
